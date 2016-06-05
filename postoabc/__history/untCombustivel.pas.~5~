@@ -1,0 +1,70 @@
+unit untCombustivel;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.DBGrids, Vcl.ComCtrls,
+  Vcl.Imaging.jpeg, Vcl.ExtCtrls, Data.FMTBcd, Vcl.StdCtrls, Vcl.Buttons,
+  Vcl.Mask, Vcl.DBCtrls, Data.DB, Datasnap.Provider, Datasnap.DBClient,
+  Data.SqlExpr;
+
+type
+  TfrmCombustivel = class(TForm)
+    Image1: TImage;
+    PageControl1: TPageControl;
+    tbsLista: TTabSheet;
+    tbsCadastro: TTabSheet;
+    dbgLista: TDBGrid;
+    qryCombustivel: TSQLQuery;
+    dsCombustivel: TDataSource;
+    cdsCombustivel: TClientDataSet;
+    dspCombustivel: TDataSetProvider;
+    cdsCombustivelID_COMBUSTIVEL: TIntegerField;
+    cdsCombustivelDESCRICAO: TStringField;
+    cdsCombustivelVALOR: TFMTBCDField;
+    cdsCombustivelIMPOSTO: TFMTBCDField;
+    Label1: TLabel;
+    DBEdit1: TDBEdit;
+    Label2: TLabel;
+    DBEdit2: TDBEdit;
+    Label3: TLabel;
+    DBEdit3: TDBEdit;
+    Label4: TLabel;
+    DBEdit4: TDBEdit;
+    Panel1: TPanel;
+    btnInserir: TBitBtn;
+    btnAlterar: TBitBtn;
+    btnExcluir: TBitBtn;
+    btnCancelar: TBitBtn;
+    btnConfirmar: TBitBtn;
+    btnFechar: TBitBtn;
+    procedure FormShow(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    private tratarBotoes(isEdicao: boolean);
+  end;
+
+var
+  frmCombustivel: TfrmCombustivel;
+
+implementation
+
+{$R *.dfm}
+
+uses untDM;
+
+procedure TfrmCombustivel.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+   cdsCombustivel.Close;
+end;
+
+procedure TfrmCombustivel.FormShow(Sender: TObject);
+begin
+   cdsCombustivel.Open;
+end;
+
+end.

@@ -1,0 +1,40 @@
+object frmHome: TfrmHome
+  Left = 39
+  Top = 165
+  Caption = 'Home'
+  ClientHeight = 353
+  ClientWidth = 1309
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  Menu = mnHome
+  OldCreateOrder = False
+  Position = poDesktopCenter
+  OnClose = FormClose
+  PixelsPerInch = 96
+  TextHeight = 13
+  object mnHome: TMainMenu
+    Left = 640
+    Top = 8
+    object mnCadastros: TMenuItem
+      Caption = 'Cadastros'
+      object mnCombustivel: TMenuItem
+        Caption = 'Combust'#237'vel'
+        OnClick = mnCombustivelClick
+      end
+      object mnTanque: TMenuItem
+        Caption = 'Tanque'
+      end
+      object mnBomba: TMenuItem
+        Caption = 'Bomba'
+      end
+    end
+    object mnSair: TMenuItem
+      Caption = 'Sair'
+      OnClick = mnSairClick
+    end
+  end
+end

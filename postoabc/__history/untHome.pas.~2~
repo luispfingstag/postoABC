@@ -1,0 +1,43 @@
+unit untHome;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus;
+
+type
+  TfrmHome = class(TForm)
+    mnHome: TMainMenu;
+    mnCadastros: TMenuItem;
+    mnCombustivel: TMenuItem;
+    mnTanque: TMenuItem;
+    mnBomba: TMenuItem;
+    mnSair: TMenuItem;
+    procedure mnSairClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmHome: TfrmHome;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmHome.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+   if MessageDlg('Tem certeza que deseja fechar?', mtConfirmation, mbYesNo, 0) <> mrYes then
+      abort;
+end;
+
+procedure TfrmHome.mnSairClick(Sender: TObject);
+begin
+   Close;
+end;
+
+end.

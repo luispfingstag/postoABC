@@ -1,0 +1,14 @@
+program postoABC;
+
+uses
+  Vcl.Forms,
+  untHome in 'untHome.pas' {frmHome};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TfrmHome, frmHome);
+  Application.Run;
+end.

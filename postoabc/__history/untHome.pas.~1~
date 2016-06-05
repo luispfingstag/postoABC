@@ -1,0 +1,29 @@
+unit untHome;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus;
+
+type
+  TfrmHome = class(TForm)
+    MainMenu1: TMainMenu;
+    mnCadastros: TMenuItem;
+    mnCombustivel: TMenuItem;
+    mnTanque: TMenuItem;
+    mnBomba: TMenuItem;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmHome: TfrmHome;
+
+implementation
+
+{$R *.dfm}
+
+end.

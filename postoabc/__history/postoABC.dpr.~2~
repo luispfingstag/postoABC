@@ -1,0 +1,16 @@
+program postoABC;
+
+uses
+  Vcl.Forms,
+  untHome in 'untHome.pas' {frmHome},
+  Unit1 in 'Unit1.pas' {IWFrame1: TFrame},
+  untLayout in 'untLayout.pas' {frmLayout: TFrame};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TfrmHome, frmHome);
+  Application.Run;
+end.
