@@ -28,8 +28,9 @@ type
     DBEdit1: TDBEdit;
     Label2: TLabel;
     DBLookupComboBox1: TDBLookupComboBox;
+    Label3: TLabel;
+    DBLookupComboBox2: TDBLookupComboBox;
     procedure FormShow(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure dsbombaDataChange(Sender: TObject; Field: TField);
     procedure btnFecharClick(Sender: TObject);
     procedure btnInserirClick(Sender: TObject);
@@ -73,7 +74,16 @@ end;
 
 procedure TfrmBomba.btnExcluirClick(Sender: TObject);
 begin
-   dm.cdsBomba.Delete;
+   dm.cdsAbastecimento.Open;
+   try
+
+     if dm.cdsAbastecimento.Locate('ID_BOMBA', dm.cdsBombaID_BOMBA.AsInteger, []) then
+        MessageDlg('Não é possível excluir Bomba com movimentação!', mtWarning, [mbOk],0)
+     else dm.cdsBomba.Delete;
+
+   finally
+      dm.cdsAbastecimento.close;
+   end;
 end;
 
 procedure TfrmBomba.btnFecharClick(Sender: TObject);
@@ -98,15 +108,8 @@ begin
    tratarBotoes(dm.cdsBomba.State in [dsEdit, dsInsert]);
 end;
 
-procedure TfrmBomba.FormClose(Sender: TObject; var Action: TCloseAction);
-begin
-   dm.cdsBomba.Close;
-end;
-
 procedure TfrmBomba.FormShow(Sender: TObject);
 begin
-   dm.cdsBomba.Open;
-
    pcCadastro.ActivePageIndex := 0;
 end;
 

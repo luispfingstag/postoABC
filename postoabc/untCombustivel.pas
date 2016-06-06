@@ -77,7 +77,16 @@ end;
 
 procedure TfrmCombustivel.btnExcluirClick(Sender: TObject);
 begin
-   dm.cdsCombustivel.Delete;
+   dm.cdsTanque.Open;
+   try
+
+     if dm.cdsTanque.Locate('ID_COMBUSTIVEL', dm.cdsCombustivelID_COMBUSTIVEL.AsInteger, []) then
+        MessageDlg('Antes de excluir esse Combustível você deve desviculá-lo do Tanque '+dm.cdsTanqueID_TANQUE.AsString+'.', mtWarning, [mbOk],0)
+     else dm.cdsCombustivel.Delete;
+
+   finally
+      dm.cdsTanque.Close;
+   end;
 end;
 
 procedure TfrmCombustivel.btnFecharClick(Sender: TObject);

@@ -4,7 +4,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, Data.DBXFirebird, Data.DB, Data.SqlExpr,
-  Data.FMTBcd, Datasnap.DBClient, Datasnap.Provider, Vcl.Dialogs, Vcl.Controls;
+  Data.FMTBcd, Datasnap.DBClient, Datasnap.Provider, Vcl.Dialogs, Vcl.Controls, Vcl.forms;
 
 type
   Tdm = class(TDataModule)
@@ -27,7 +27,6 @@ type
     cdsBombaID_BOMBA: TIntegerField;
     cdsBombaID_TANQUE: TIntegerField;
     cdsTanqueCOMBUSTIVEL: TStringField;
-    cdsBombaCOMBUSTIVEL: TStringField;
     qryAbastecimento: TSQLQuery;
     dspAbastecimento: TDataSetProvider;
     cdsAbastecimento: TClientDataSet;
@@ -37,7 +36,28 @@ type
     cdsAbastecimentoQUANTIDADE: TFMTBCDField;
     cdsAbastecimentoVALOR: TFMTBCDField;
     cdsAbastecimentoVALOR_IMPOSTO: TFMTBCDField;
-    cdsAbastecimentoBOMBA: TStringField;
+    cdsBombaCOMBUSTIVEL: TStringField;
+    cdsTanqueVALOR: TFloatField;
+    cdsTanqueIMPOSTO: TFloatField;
+    cdsBombaTANQUE: TIntegerField;
+    cdsBombaQTDE: TFloatField;
+    cdsBombaIMPOSTO: TFloatField;
+    cdsBombaTOTAL: TFloatField;
+    cdsBombaVALOR_LITRO: TFloatField;
+    cdsBombaVALOR: TFloatField;
+    cdsBombaTAXA_IMPOSTO: TFloatField;
+    qryRelatorio: TSQLQuery;
+    dspRelatorio: TDataSetProvider;
+    cdsRelatorio: TClientDataSet;
+    cdsRelatorioDATA: TSQLTimeStampField;
+    cdsRelatorioID_TANQUE: TIntegerField;
+    cdsRelatorioID_BOMBA: TIntegerField;
+    cdsRelatorioDESCRICAO: TStringField;
+    cdsRelatorioQTDE_ABASTECIMENTOS: TIntegerField;
+    cdsRelatorioQUANTIDADE_LITROS: TFMTBCDField;
+    cdsRelatorioVALOR: TFMTBCDField;
+    cdsRelatorioVALOR_IMPOSTO: TFMTBCDField;
+    cdsRelatorioVALOR_PAGO: TFloatField;
     procedure cdsCombustivelAfterInsert(DataSet: TDataSet);
     procedure cdsCombustivelBeforeDelete(DataSet: TDataSet);
     procedure cdsTanqueAfterInsert(DataSet: TDataSet);
@@ -55,7 +75,7 @@ type
     procedure confirmaExclusao;
   public
     { Public declarations }
-    procedure salvar(oCds: TClientDataSet);
+    function salvar(oCds: TClientDataSet): boolean;
   end;
 
 var
@@ -74,7 +94,7 @@ end;
 
 procedure Tdm.cdsAbastecimentoAfterInsert(DataSet: TDataSet);
 begin
-   if(cdsAbastecimento.Aggregates.Find('seq').Value = nil)then
+   if(cdsAbastecimento.RecordCount = 0)then
       cdsAbastecimentoID_ABASTECIMENTO.AsInteger :=  1
    else cdsAbastecimentoID_ABASTECIMENTO.AsInteger :=  cdsAbastecimento.Aggregates.Find('seq').Value + 1;
 end;
@@ -91,7 +111,9 @@ end;
 
 procedure Tdm.cdsBombaAfterInsert(DataSet: TDataSet);
 begin
-   cdsBombaID_BOMBA.AsInteger :=  cdsBomba.Aggregates.Find('seq').Value + 1;
+   if(cdsBomba.RecordCount = 0)then
+      cdsBombaID_BOMBA.AsInteger :=  1
+   else cdsBombaID_BOMBA.AsInteger :=  cdsBomba.Aggregates.Find('seq').Value + 1;
 end;
 
 procedure Tdm.cdsBombaBeforeDelete(DataSet: TDataSet);
@@ -106,7 +128,9 @@ end;
 
 procedure Tdm.cdsCombustivelAfterInsert(DataSet: TDataSet);
 begin
-   cdsCombustivelID_COMBUSTIVEL.AsInteger :=  cdsCombustivel.Aggregates.Find('seq').Value + 1;
+   if(cdsCombustivel.RecordCount = 0)then
+      cdsCombustivelID_COMBUSTIVEL.AsInteger :=  1
+   else cdsCombustivelID_COMBUSTIVEL.AsInteger :=  cdsCombustivel.Aggregates.Find('seq').Value + 1;
 end;
 
 procedure Tdm.cdsCombustivelBeforeDelete(DataSet: TDataSet);
@@ -121,7 +145,9 @@ end;
 
 procedure Tdm.cdsTanqueAfterInsert(DataSet: TDataSet);
 begin
-   cdsTanqueID_TANQUE.AsInteger :=  cdsTanque.Aggregates.Find('seq').Value + 1;
+   if(cdsTanque.RecordCount = 0)then
+      cdsTanqueID_TANQUE.AsInteger :=  1
+   else cdsTanqueID_TANQUE.AsInteger :=  cdsTanque.Aggregates.Find('seq').Value + 1;
 end;
 
 procedure Tdm.cdsTanqueBeforeDelete(DataSet: TDataSet);
@@ -135,13 +161,16 @@ begin
       abort;
 end;
 
-procedure Tdm.salvar(oCds: TClientDataSet);
+function Tdm.salvar(oCds: TClientDataSet): boolean;
 begin
+   result := false;
    try
       if oCds.State in [dsInsert, dsEdit] then
          oCds.Post;
 
       oCds.ApplyUpdates(0);
+
+      result := true;
 
    except
       on e: Exception do

@@ -3,9 +3,9 @@ unit untHome;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.Imaging.jpeg,
-  Vcl.ExtCtrls;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.Imaging.jpeg,
+  Vcl.ExtCtrls, Data.DB, Vcl.DBCGrids, Vcl.DBCtrls, Vcl.StdCtrls, Vcl.Mask, Vcl.ComCtrls;
 
 type
   TfrmHome = class(TForm)
@@ -17,21 +17,39 @@ type
     mnSair: TMenuItem;
     Image1: TImage;
     mmRelatorios: TMenuItem;
-    Cadastrais1: TMenuItem;
-    Combustvel1: TMenuItem;
-    anque1: TMenuItem;
-    Bomba1: TMenuItem;
-    Abastecimento1: TMenuItem;
-    Personalizado1: TMenuItem;
-    mmAbastecimento: TMenuItem;
+    dbctrlAbastecimento: TDBCtrlGrid;
+    dsBomba: TDataSource;
+    pnlBomba: TPanel;
+    Label1: TLabel;
+    DBEdit1: TDBEdit;
+    DBEdit3: TDBEdit;
+    DBEdit2: TDBEdit;
+    Label2: TLabel;
+    dtpData: TDateTimePicker;
+    Panel1: TPanel;
+    Label3: TLabel;
+    DBEdit4: TDBEdit;
+    Label4: TLabel;
+    DBEdit5: TDBEdit;
+    Label5: TLabel;
+    DBEdit6: TDBEdit;
+    Label6: TLabel;
+    DBEdit7: TDBEdit;
+    imgBotao: TImage;
     procedure mnSairClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure mnCombustivelClick(Sender: TObject);
     procedure mnTanqueClick(Sender: TObject);
     procedure mnBombaClick(Sender: TObject);
-    procedure mmAbastecimentoClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure DBEdit4Exit(Sender: TObject);
+    procedure DBEdit4Enter(Sender: TObject);
+    procedure mmRelatoriosClick(Sender: TObject);
+    procedure imgBotaoClick(Sender: TObject);
   private
     { Private declarations }
+    procedure zerarBomba();
+    procedure carregarBombas();
   public
     { Public declarations }
   end;
@@ -43,57 +61,126 @@ implementation
 
 {$R *.dfm}
 
-uses untDM, untCombustivel, untBomba, untTanque, untAbastecimento;
+uses
+  untDM, untCombustivel, untBomba, untTanque, untRelatorio;
+
+procedure TfrmHome.carregarBombas;
+begin
+  dm.cdsBomba.close;
+  dm.cdsBomba.Open;
+  dbctrlAbastecimento.ColCount := dm.cdsBomba.RecordCount;
+  dbctrlAbastecimento.Visible  := dm.cdsBomba.RecordCount > 0;
+
+end;
+
+procedure TfrmHome.DBEdit4Enter(Sender: TObject);
+begin
+   zerarBomba();
+end;
+
+procedure TfrmHome.DBEdit4Exit(Sender: TObject);
+begin
+  if dm.cdsBomba.State <> dsBrowse then
+    dm.cdsBomba.Post;
+end;
+
+procedure TfrmHome.FormActivate(Sender: TObject);
+begin
+  dtpData.Date := Now;
+
+  carregarBombas();
+end;
 
 procedure TfrmHome.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-   if MessageDlg('Tem certeza que deseja fechar?', mtConfirmation, mbYesNo, 0) <> mrYes then
-      abort;
+  if MessageDlg('Tem certeza que deseja fechar?', mtConfirmation, mbYesNo, 0) <> mrYes then
+    abort;
 end;
 
-procedure TfrmHome.mmAbastecimentoClick(Sender: TObject);
+procedure TfrmHome.imgBotaoClick(Sender: TObject);
 begin
-   frmAbastecimento := TfrmAbastecimento.Create(nil);
-   try
-     frmAbastecimento.ShowModal;
-   finally
-      FreeAndNil(frmAbastecimento);
-   end;
+  if (dm.cdsBombaQTDE.AsInteger = 0) and (dm.cdsBombaVALOR.AsInteger = 0) then
+  begin
+    MessageDlg('Favor informar a quantidade de litros ou o valor a ser abastecido!', mtWarning, [mbOk], 0);
+    Exit;
+  end;
+
+  dm.cdsBomba.edit;
+  if dm.cdsBombaVALOR.AsFloat = 0 then
+    dm.cdsBombaVALOR.AsFloat := dm.cdsBombaQTDE.AsFloat * dm.cdsBombaVALOR_LITRO.AsFloat
+  else dm.cdsBombaQTDE.AsFloat := dm.cdsBombaVALOR.AsFloat / dm.cdsBombaVALOR_LITRO.AsFloat;
+  dm.cdsBombaIMPOSTO.AsFloat := (dm.cdsBombaTAXA_IMPOSTO.AsFloat / 100) * dm.cdsBombaVALOR.AsFloat;
+  dm.cdsBombaTOTAL.AsFloat := dm.cdsBombaIMPOSTO.AsFloat + dm.cdsBombaVALOR.AsFloat;
+
+  if not dm.cdsAbastecimento.Active then
+    dm.cdsAbastecimento.Open;
+
+  dm.cdsAbastecimento.Insert;
+  dm.cdsAbastecimentoDATA.AsDateTime := dtpData.Date;
+  dm.cdsAbastecimentoID_BOMBA.AsInteger := dm.cdsBombaID_BOMBA.AsInteger;
+  dm.cdsAbastecimentoQUANTIDADE.AsFloat := dm.cdsBombaQTDE.AsFloat;
+  dm.cdsAbastecimentoVALOR.AsFloat := dm.cdsBombaVALOR.AsFloat;
+  dm.cdsAbastecimentoVALOR_IMPOSTO.AsFloat := dm.cdsBombaIMPOSTO.AsFloat;
+
+  if dm.salvar(dm.cdsAbastecimento) then
+    MessageDlg('Abastecimento concluído com sucesso!', mtInformation, [mbOk], 0);
+
+end;
+
+procedure TfrmHome.mmRelatoriosClick(Sender: TObject);
+begin
+  frmRelatorio := TfrmRelatorio.Create(nil);
+  try
+     frmRelatorio.imprimirRelatorio;
+  finally
+     FreeAndNil(frmRelatorio);
+  end;
 end;
 
 procedure TfrmHome.mnBombaClick(Sender: TObject);
 begin
-   frmBomba := TfrmBomba.Create(nil);
-   try
+  frmBomba := TfrmBomba.Create(nil);
+  try
      frmBomba.ShowModal;
-   finally
-      FreeAndNil(frmBomba);
-   end;
+  finally
+     carregarBombas();
+     FreeAndNil(frmBomba);
+  end;
 end;
 
 procedure TfrmHome.mnCombustivelClick(Sender: TObject);
 begin
-   frmCombustivel := TfrmCombustivel.Create(nil);
-   try
-     frmCombustivel.ShowModal;
-   finally
-      FreeAndNil(frmCombustivel);
-   end;
+  frmCombustivel := TfrmCombustivel.Create(nil);
+  try
+    frmCombustivel.ShowModal;
+  finally
+    FreeAndNil(frmCombustivel);
+  end;
 end;
 
 procedure TfrmHome.mnSairClick(Sender: TObject);
 begin
-   Close;
+  Close;
 end;
 
 procedure TfrmHome.mnTanqueClick(Sender: TObject);
 begin
-   frmTanque := TfrmTanque.Create(nil);
-   try
-     frmTanque.ShowModal;
-   finally
-      FreeAndNil(frmTanque);
-   end;
+  frmTanque := TfrmTanque.Create(nil);
+  try
+    frmTanque.ShowModal;
+  finally
+    FreeAndNil(frmTanque);
+  end;
+end;
+
+procedure TfrmHome.zerarBomba;
+begin
+   dm.cdsBomba.Edit;
+   dm.cdsBombaVALOR.AsFloat := 0;
+   dm.cdsBombaQTDE.AsFloat  := 0;
+   dm.cdsBombaIMPOSTO.AsFloat := 0;
+   dm.cdsBombaTOTAL.AsFloat  := 0;
 end;
 
 end.
+

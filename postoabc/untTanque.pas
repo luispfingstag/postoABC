@@ -73,7 +73,12 @@ end;
 
 procedure TfrmTanque.btnExcluirClick(Sender: TObject);
 begin
-   dm.cdsTanque.Delete;
+   if not dm.cdsBomba.Active then
+      dm.cdsBomba.Open;
+
+   if dm.cdsBomba.Locate('ID_TANQUE', dm.cdsTanqueID_TANQUE.AsInteger, []) then
+      MessageDlg('Antes de excluir esse Tanque você deve desviculá-lo da Bomba '+dm.cdsBombaID_BOMBA.AsString+'.', mtWarning, [mbOk],0)
+   else dm.cdsTanque.Delete;
 end;
 
 procedure TfrmTanque.btnFecharClick(Sender: TObject);

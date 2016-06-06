@@ -1,7 +1,7 @@
 object dm: Tdm
   OldCreateOrder = False
-  Left = 752
-  Top = 76
+  Left = 642
+  Top = 32
   Height = 429
   Width = 602
   object conn: TSQLConnection
@@ -71,6 +71,7 @@ object dm: Tdm
     Top = 81
   end
   object cdsCombustivel: TClientDataSet
+    Active = True
     Aggregates = <
       item
         Active = True
@@ -100,6 +101,8 @@ object dm: Tdm
     object cdsCombustivelVALOR: TFMTBCDField
       DisplayLabel = 'Valor/Litro'
       FieldName = 'VALOR'
+      DisplayFormat = '#,###0.000'
+      EditFormat = '#,###0.000'
       Precision = 15
       Size = 6
     end
@@ -107,6 +110,8 @@ object dm: Tdm
       DisplayLabel = '% Imposto'
       FieldName = 'IMPOSTO'
       Required = True
+      DisplayFormat = '#,###0.000'
+      EditFormat = '#,###0.000'
       Precision = 15
       Size = 6
     end
@@ -161,6 +166,24 @@ object dm: Tdm
       KeyFields = 'ID_COMBUSTIVEL'
       Lookup = True
     end
+    object cdsTanqueVALOR: TFloatField
+      FieldKind = fkLookup
+      FieldName = 'VALOR'
+      LookupDataSet = cdsCombustivel
+      LookupKeyFields = 'ID_COMBUSTIVEL'
+      LookupResultField = 'VALOR'
+      KeyFields = 'ID_COMBUSTIVEL'
+      Lookup = True
+    end
+    object cdsTanqueIMPOSTO: TFloatField
+      FieldKind = fkLookup
+      FieldName = 'IMPOSTO'
+      LookupDataSet = cdsCombustivel
+      LookupKeyFields = 'ID_COMBUSTIVEL'
+      LookupResultField = 'IMPOSTO'
+      KeyFields = 'ID_COMBUSTIVEL'
+      Lookup = True
+    end
   end
   object qryBomba: TSQLQuery
     NumericMapping = True
@@ -212,6 +235,62 @@ object dm: Tdm
       KeyFields = 'ID_TANQUE'
       Lookup = True
     end
+    object cdsBombaVALOR_LITRO: TFloatField
+      FieldKind = fkLookup
+      FieldName = 'VALOR_LITRO'
+      LookupDataSet = cdsTanque
+      LookupKeyFields = 'ID_TANQUE'
+      LookupResultField = 'VALOR'
+      KeyFields = 'ID_TANQUE'
+      DisplayFormat = '#,###0.000'
+      EditFormat = '#,###0.000'
+      Lookup = True
+    end
+    object cdsBombaTAXA_IMPOSTO: TFloatField
+      FieldKind = fkLookup
+      FieldName = 'TAXA_IMPOSTO'
+      LookupDataSet = cdsTanque
+      LookupKeyFields = 'ID_TANQUE'
+      LookupResultField = 'IMPOSTO'
+      KeyFields = 'ID_TANQUE'
+      DisplayFormat = '#,###0.000'
+      EditFormat = '#,###0.000'
+      Lookup = True
+    end
+    object cdsBombaTANQUE: TIntegerField
+      DisplayLabel = 'Tanque'
+      FieldKind = fkLookup
+      FieldName = 'TANQUE'
+      LookupDataSet = cdsTanque
+      LookupKeyFields = 'ID_TANQUE'
+      LookupResultField = 'ID_TANQUE'
+      KeyFields = 'ID_TANQUE'
+      Lookup = True
+    end
+    object cdsBombaQTDE: TFloatField
+      FieldKind = fkInternalCalc
+      FieldName = 'QTDE'
+      DisplayFormat = '#,###0.000'
+      EditFormat = '#,###0.000'
+    end
+    object cdsBombaIMPOSTO: TFloatField
+      FieldKind = fkInternalCalc
+      FieldName = 'IMPOSTO'
+      DisplayFormat = '#,###0.000'
+      EditFormat = '#,###0.000'
+    end
+    object cdsBombaTOTAL: TFloatField
+      FieldKind = fkInternalCalc
+      FieldName = 'TOTAL'
+      DisplayFormat = '#,###0.000'
+      EditFormat = '#,###0.000'
+    end
+    object cdsBombaVALOR: TFloatField
+      FieldKind = fkInternalCalc
+      FieldName = 'VALOR'
+      DisplayFormat = '#,###0.000'
+      EditFormat = '#,###0.000'
+    end
   end
   object qryAbastecimento: TSQLQuery
     NumericMapping = True
@@ -255,20 +334,6 @@ object dm: Tdm
     object cdsAbastecimentoID_BOMBA: TIntegerField
       DisplayLabel = 'Bomba'
       FieldName = 'ID_BOMBA'
-      LookupDataSet = cdsBomba
-      LookupKeyFields = 'ID_BOMBA'
-      LookupResultField = 'ID_BOMBA'
-      KeyFields = 'ID_BOMBA'
-    end
-    object cdsAbastecimentoBOMBA: TStringField
-      DisplayLabel = 'Combust'#237'vel'
-      FieldKind = fkLookup
-      FieldName = 'COMBUSTIVEL'
-      LookupDataSet = cdsBomba
-      LookupKeyFields = 'ID_BOMBA'
-      LookupResultField = 'COMBUSTIVEL'
-      KeyFields = 'ID_BOMBA'
-      Lookup = True
     end
     object cdsAbastecimentoDATA: TSQLTimeStampField
       DisplayLabel = 'Data'
@@ -279,6 +344,8 @@ object dm: Tdm
       DisplayLabel = 'Quantidade/Litros'
       FieldName = 'QUANTIDADE'
       Required = True
+      DisplayFormat = '#,###0.000'
+      EditFormat = '#,###0.000'
       Precision = 15
       Size = 6
     end
@@ -286,6 +353,8 @@ object dm: Tdm
       DisplayLabel = 'Valor'
       FieldName = 'VALOR'
       Required = True
+      DisplayFormat = '#,###0.000'
+      EditFormat = '#,###0.000'
       Precision = 15
       Size = 6
     end
@@ -293,8 +362,107 @@ object dm: Tdm
       DisplayLabel = 'Valor do Imposto'
       FieldName = 'VALOR_IMPOSTO'
       Required = True
+      DisplayFormat = '#,###0.000'
+      EditFormat = '#,###0.000'
       Precision = 15
       Size = 6
+    end
+  end
+  object qryRelatorio: TSQLQuery
+    NumericMapping = True
+    MaxBlobSize = -1
+    Params = <>
+    SQL.Strings = (
+      'select '
+      '    cast('
+      '        extract(MONTH FROM data) || '#39'/'#39' ||'
+      '        extract(DAY FROM data) || '#39'/'#39' ||'
+      '        extract(YEAR FROM data) '
+      '    as timestamp) as DATA, '
+      '    B.ID_TANQUE,    '
+      '    A.ID_BOMBA,'
+      '    C.DESCRICAO,'
+      '    COUNT(1) AS QTDE_ABASTECIMENTOS,    '
+      '    SUM(A.QUANTIDADE) AS QUANTIDADE_LITROS,'
+      '    SUM(A.VALOR) AS VALOR,'
+      '    SUM(A.VALOR_IMPOSTO) AS VALOR_IMPOSTO,'
+      '    SUM(A.VALOR) + SUM(A.VALOR_IMPOSTO) AS VALOR_PAGO'
+      ' from TBABASTECIMENTO A'
+      ' join TBBOMBA B ON'
+      ' (B.ID_BOMBA = A.ID_BOMBA)'
+      'join TBTANQUE T ON'
+      ' (T.ID_TANQUE = B.ID_TANQUE) '
+      'join TBCOMBUSTIVEL C ON'
+      ' (C.ID_COMBUSTIVEL = T.ID_COMBUSTIVEL)  '
+      ' GROUP BY'
+      '    A.DATA,'
+      '    A.ID_BOMBA,'
+      '    B.ID_TANQUE,'
+      '    C.DESCRICAO     '
+      'order by'
+      '    A.DATA,'
+      '    A.ID_BOMBA')
+    SQLConnection = conn
+    Left = 60
+    Top = 185
+  end
+  object dspRelatorio: TDataSetProvider
+    DataSet = qryRelatorio
+    Left = 60
+    Top = 241
+  end
+  object cdsRelatorio: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'dspRelatorio'
+    AfterInsert = cdsCombustivelAfterInsert
+    BeforeDelete = cdsCombustivelBeforeDelete
+    AfterDelete = cdsCombustivelAfterDelete
+    Left = 60
+    Top = 289
+    object cdsRelatorioDATA: TSQLTimeStampField
+      FieldName = 'DATA'
+      Required = True
+    end
+    object cdsRelatorioID_TANQUE: TIntegerField
+      FieldName = 'ID_TANQUE'
+    end
+    object cdsRelatorioID_BOMBA: TIntegerField
+      FieldName = 'ID_BOMBA'
+    end
+    object cdsRelatorioDESCRICAO: TStringField
+      FieldName = 'DESCRICAO'
+      Required = True
+      Size = 50
+    end
+    object cdsRelatorioQTDE_ABASTECIMENTOS: TIntegerField
+      FieldName = 'QTDE_ABASTECIMENTOS'
+      Required = True
+    end
+    object cdsRelatorioQUANTIDADE_LITROS: TFMTBCDField
+      FieldName = 'QUANTIDADE_LITROS'
+      DisplayFormat = '#,###0.000'
+      EditFormat = '#,###0.000'
+      Precision = 15
+      Size = 6
+    end
+    object cdsRelatorioVALOR: TFMTBCDField
+      FieldName = 'VALOR'
+      DisplayFormat = '#,###0.000'
+      EditFormat = '#,###0.000'
+      Precision = 15
+      Size = 6
+    end
+    object cdsRelatorioVALOR_IMPOSTO: TFMTBCDField
+      FieldName = 'VALOR_IMPOSTO'
+      EditFormat = '#,###0.000'
+      Precision = 15
+      Size = 6
+    end
+    object cdsRelatorioVALOR_PAGO: TFloatField
+      FieldName = 'VALOR_PAGO'
+      DisplayFormat = '#,###0.000'
+      EditFormat = '#,###0.000'
     end
   end
 end

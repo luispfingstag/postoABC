@@ -13,7 +13,6 @@ object frmBomba: TfrmBomba
   Font.Style = []
   OldCreateOrder = False
   Position = poDesktopCenter
-  OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -372,10 +371,18 @@ object frmBomba: TfrmBomba
       object Label2: TLabel
         Left = 24
         Top = 72
+        Width = 36
+        Height = 13
+        Caption = 'Tanque'
+        FocusControl = DBLookupComboBox1
+      end
+      object Label3: TLabel
+        Left = 192
+        Top = 72
         Width = 58
         Height = 13
         Caption = 'Combust'#237'vel'
-        FocusControl = DBLookupComboBox1
+        FocusControl = DBLookupComboBox2
       end
       object DBEdit1: TDBEdit
         Left = 24
@@ -389,12 +396,21 @@ object frmBomba: TfrmBomba
       end
       object DBLookupComboBox1: TDBLookupComboBox
         Left = 24
-        Top = 91
+        Top = 88
+        Width = 144
+        Height = 21
+        DataField = 'TANQUE'
+        DataSource = dsbomba
+        TabOrder = 1
+      end
+      object DBLookupComboBox2: TDBLookupComboBox
+        Left = 192
+        Top = 88
         Width = 274
         Height = 21
         DataField = 'COMBUSTIVEL'
         DataSource = dsbomba
-        TabOrder = 1
+        TabOrder = 2
       end
     end
   end

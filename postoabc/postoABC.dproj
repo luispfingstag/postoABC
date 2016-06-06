@@ -95,8 +95,9 @@
 			<DCCReference Include="untBomba.pas">
 				<Form>frmBomba</Form>
 			</DCCReference>
-			<DCCReference Include="untAbastecimento.pas">
-				<Form>frmAbastecimento</Form>
+			<DCCReference Include="untRelatorio.pas">
+				<Form>frmRelatorio</Form>
+				<FormType>dfm</FormType>
 			</DCCReference>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
